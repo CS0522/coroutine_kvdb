@@ -1,0 +1,6 @@
+RubbleDB
+rubble_modified/*
+!rubble_modified/helper.sh
+!rubble_modified/setup-rubble.sh
+!rubble_modified/setup-nvmeof.sh
+!rubble_modified/setup.sh
