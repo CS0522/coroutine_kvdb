@@ -37,7 +37,7 @@ script_path="rubble"
 
 # 修改：
 # 添加为 c6525-100g 修改的脚本
-repo_modified=""
+repo_modified="https://raw.githubusercontent.com/CS0522/coroutine_kvdb/master/rubble_modified"
 
 shift 3
 
