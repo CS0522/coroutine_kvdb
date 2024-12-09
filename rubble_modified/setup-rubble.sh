@@ -149,10 +149,10 @@ setup_rocksdb() {
     done
     wait
 
-    for dev in `ls ${nvme_dev}p*`
-    do
-        umount $dev
-    done
+    # for dev in `ls ${nvme_dev}p*`
+    # do
+    #     umount $dev
+    # done
 
     lsblk
 }
