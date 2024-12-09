@@ -36,7 +36,6 @@ branch="rubble"
 script_path="rubble"
 
 # 修改：
-# 添加为 c6525-100g 修改的脚本
 repo_modified="https://raw.githubusercontent.com/CS0522/coroutine_kvdb/master/rubble_modified"
 
 shift 3
@@ -112,45 +111,42 @@ wait
 # fi
 
 # Step 4c: each node nvme-connects to its successor
-log=">> nvmeof.log 2>&1"
-for ip in $rubble_node
-do
-    # ssh $ssh_arg root@$ip "wget ${repo}/${branch}/${script_path}/setup-nvmeof.sh ${log}; bash setup-nvmeof.sh target ${is_mlnx} ${rf} ${log}" &
-    # 修改：
-    # 获取修改的 shell
-    ssh $ssh_arg root@$ip "wget ${repo_modified}/setup-nvmeof.sh ${log}; bash setup-nvmeof.sh target ${is_mlnx} ${rf} ${log}" &
-done
-wait
+# log=">> nvmeof.log 2>&1"
+# for ip in $rubble_node
+# do
+#     # ssh $ssh_arg root@$ip "wget ${repo}/${branch}/${script_path}/setup-nvmeof.sh ${log}; bash setup-nvmeof.sh target ${is_mlnx} ${rf} ${log}" &
+#     # 修改：
+#     # 获取修改的 shell
+#     ssh $ssh_arg root@$ip "wget ${repo_modified}/setup-nvmeof.sh ${log}; bash setup-nvmeof.sh target ${is_mlnx} ${rf} ${log}" &
+# done
+# wait
 
 rubble_node=( "$@" )
-for (( i=0; i<$rf; i++))
-do
-    # 修改：
-    # 原因：对于 c6525-100g 机器，已经有 2 个本地 nvme，所以远程挂载的是 nvme2n1
-    # nvme_id=1
-    nvme_id=2
-    for (( j=0; j<$rf; j++ ))
-    do
-        if [ $j -ne $i ]
-        then
-            k=$(( j + 2 ))
-            ip=${rubble_node[$i]}
-            next_ip='10.10.1.'$k
-            ssh $ssh_arg root@$ip "bash setup-nvmeof.sh host ${next_ip} ${nvme_id} ${log}"
-            nvme_id=$(( nvme_id + 1 ))
-        fi
-    done
-done
+# for (( i=0; i<$rf; i++))
+# do
+#     nvme_id=1
+#     for (( j=0; j<$rf; j++ ))
+#     do
+#         if [ $j -ne $i ]
+#         then
+#             k=$(( j + 2 ))
+#             ip=${rubble_node[$i]}
+#             next_ip='10.10.1.'$k
+#             ssh $ssh_arg root@$ip "bash setup-nvmeof.sh host ${next_ip} ${nvme_id} ${log}"
+#             nvme_id=$(( nvme_id + 1 ))
+#         fi
+#     done
+# done
 
 # Step 5: misc
 # 修改：
-# for ip in ${rubble_node[@]}
-# do
-#     ssh $ssh_arg root@$ip "mkswap /dev/sda4; swapon /dev/sda4;"
-#     ssh $ssh_arg root@$ip "bash -c 'echo core.%e.%p > /proc/sys/kernel/core_pattern'"
-#     ssh $ssh_arg root@$ip "mkdir ~/.config/procps"
-#     scp $ssh_arg toprc root@$ip:~/.config/procps/
-#     scp $ssh_arg dstat root@$ip:/usr/bin/dstat
-# done
+for ip in ${rubble_node[@]}
+do
+    ssh $ssh_arg root@$ip "mkswap /dev/sda4; swapon /dev/sda4;"
+    ssh $ssh_arg root@$ip "bash -c 'echo core.%e.%p > /proc/sys/kernel/core_pattern'"
+    ssh $ssh_arg root@$ip "mkdir ~/.config/procps"
+    scp $ssh_arg toprc root@$ip:~/.config/procps/
+    scp $ssh_arg dstat root@$ip:/usr/bin/dstat
+done
 
 echo "Done!"

@@ -1,4 +1,5 @@
 RubbleDB
+remote-rocksdb/*
 rubble_modified/*
 !rubble_modified/helper.sh
 !rubble_modified/setup-rubble.sh

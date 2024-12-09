@@ -4,7 +4,7 @@ set -x
 
 # 修改
 # nvme_dev='/dev/nvme0n1'
-nvme_dev='/dev/nvme1n1'
+nvme_dev='/dev/nvme0n1'
 DATA_PATH="/mnt/data"
 SST_PATH="/mnt/sst"
 
@@ -17,7 +17,7 @@ install_dependencies() {
 }
 
 # 修改：
-# nvme0n1 -> nvme1n1
+# 手动执行分区
 # After this function, the disk will look like:
 # nvme0n1
 # ├─nvme0n1p1
@@ -159,7 +159,7 @@ setup_rocksdb() {
 
 source /root/helper.sh
 install_dependencies
-partition_disk $1 $2
+# partition_disk $1 $2
 setup_grpc
 setup_rocksdb $1 $2
 

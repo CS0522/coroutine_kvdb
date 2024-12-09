@@ -107,12 +107,12 @@ mount_local_disk() {
     local pid=2
 
     # mount /dev/nvme0n1p1 /mnt/data
-    mount /dev/nvme1n1p1 /mnt/data
+    mount /dev/nvme0n1p4 /mnt/data
     for (( nid=1; nid<=$rf; nid++ )); do
         if [ $nid -ne $self ]; then
             mkdir -p /mnt/sst/node-${nid}
             # mount ${option} /dev/nvme0n1p${pid} /mnt/sst/node-${nid}
-            mount ${option} /dev/nvme1n1p${pid} /mnt/sst/node-${nid}
+            mount ${option} /dev/nvme0n1p${pid} /mnt/sst/node-${nid}
             pid=$(( pid + 1 ))
         fi
     done
