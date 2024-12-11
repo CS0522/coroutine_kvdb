@@ -126,8 +126,7 @@ void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
 
         SingleOp *op = request_.add_ops();
         op->set_key(key);
-        op->set_type(SingleOp::GET);
-        op->set_id(op_counter_.load());
+        op->set_type(remoterocksdb::GET);
 
         if (request_.ops_size() == BATCH_SIZE)
         {
@@ -176,8 +175,7 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
         SingleOp *op = request_.add_ops();
         op->set_key(kv.first);
         op->set_value(kv.second);
-        op->set_type(SingleOp::PUT);
-        op->set_id(op_counter_.load());
+        op->set_type(remoterocksdb::PUT);
 
         if (request_.ops_size() == BATCH_SIZE)
         {
@@ -220,20 +218,20 @@ Status RemoteRocksDBClient::Done()
 void generate_data(std::vector<std::pair<std::string, std::string>> &kvs, std::vector<std::string> &keys)
 {
     uint32_t num_of_kvs = 1000;
-    random_device rd;
-    mt19937_64 gen(rd());
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
     unsigned long n = 1024;
     zipf_table_distribution<unsigned long, double> zipf(n);
-    default_random_engine eng;
-    uniform_int_distribution<int> distr(0, 10000);
+    std::default_random_engine eng;
+    std::uniform_int_distribution<int> distr(0, 10000);
 
     std::cout << "zif table initialized" << std::endl;
 
     // Op request
     for (int i = 0; i < num_of_kvs; i++)
     {
-        std::string rand_key = bitset<24>(zipf(gen)).to_string();
-        std::string rand_val = bitset<32>(distr(eng)).to_string();
+        std::string rand_key = std::bitset<24>(zipf(gen)).to_string();
+        std::string rand_val = std::bitset<32>(distr(eng)).to_string();
         // 凑成 KV_SIZE
         rand_val.append(KV_SIZE - rand_val.size(), '0');
 
