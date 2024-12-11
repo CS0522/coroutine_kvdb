@@ -49,7 +49,7 @@ rocksdb::DB* get_db(const std::string &db_path)
 void run_server(rocksdb::DB* db, const std::string &server_addr)
 {
     // 创建 service 对象
-    RemoteRocksDBServiceImpl service(db);
+    remoterocksdb::RemoteRocksDBServiceImpl service(db);
     grpc::EnableDefaultHealthCheckService(true);
     grpc::reflection::InitProtoReflectionServerBuilderPlugin();
     ServerBuilder builder;
