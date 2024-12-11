@@ -110,7 +110,7 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
         single_op_rep->set_type(remoterocksdb::PUT);
         single_op_rep->set_status(r_s.ToString());
         single_op_rep->set_keynum(single_op->keynum());
-        single_ip_rep->set_ok(rs_.ok());
+        single_op_rep->set_ok(r_s.ok());
         break;
 
     case remoterocksdb::DELETE:
@@ -122,7 +122,7 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
         single_op_rep->set_key(single_op->key());
         single_op_rep->set_type(remoterocksdb::DELETE);
         single_op_rep->set_status(r_s.ToString());
-        single_op_rep->set_ok(rs_.ok());
+        single_op_rep->set_ok(r_s.ok());
         break;
 
     case remoterocksdb::UPDATE:
@@ -136,7 +136,7 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
         single_op_rep->set_key(single_op->key());
         single_op_rep->set_type(remoterocksdb::UPDATE);
         single_op_rep->set_status(r_s.ToString());
-        single_op_rep->set_ok(rs_.ok());
+        single_op_rep->set_ok(r_s.ok());
         break;
 
     case remoterocksdb::SCAN:
