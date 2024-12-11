@@ -38,7 +38,7 @@ aux_source_directory(${CMAKE_SOURCE_DIR}/src SRC_LIST)
 aux_source_directory(${PROJECT_INCLUDE_DIR}/${PROJECT_NAME} PROTOBUF_SRC_LIST)
 
 add_executable(db_server
-    src/db_server.cc
+    src/db_server.cc src/sync_service_impl.cc
     ${PROTOBUF_SRC_LIST}
     )
 add_executable(db_client

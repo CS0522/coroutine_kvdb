@@ -25,11 +25,11 @@ Status RemoteRocksDBServiceImpl::DoOp(ServerContext *context, ServerReaderWriter
     {
         Op *op_req = new Op(tmp_op);
         OpReply *op_rep = new OpReply();
-        op_rep->set_time(request->time());
+        op_rep->set_time(op_req->time());
 
         s = this->HandleOp(op_req, op_rep);
         // 有操作未正确执行，退出
-        if (s != Status::OK)
+        if (!s.ok())
             break;
     }
 
@@ -62,7 +62,7 @@ Status RemoteRocksDBServiceImpl::HandleOp(Op *op, OpReply *op_reply)
         assert((uint64_t)op_reply == single_op->reply_ptr());
 
         s = this->HandleSingleOp(single_op);
-        if (s != Status : OK)
+        if (!s.ok())
             break;
     }
 
@@ -95,7 +95,7 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
         single_op_rep->set_key(single_op->key());
         single_op_rep->set_type(remoterocksdb::GET);
         single_op_rep->set_status(r_s.ToString());
-        single_ip_rep->set_ok(rs_.ok());
+        single_op_rep->set_ok(r_s.ok());
         if (r_s.ok())
             single_op_rep->set_value(value);
         break;
@@ -146,7 +146,7 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
 
         single_op_rep = op_rep->add_replies();
         single_op_rep->set_key(single_op->key());
-        single_op_rep->set_type(rubble::SCAN);
+        single_op_rep->set_type(remoterocksdb::SCAN);
         single_op_rep->set_ok(true);
 
         for (iter->Seek(rocksdb::Slice(single_op->key())); iter->Valid() && iterations < record_cnt; iter->Next())
@@ -163,5 +163,5 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
         break;
     }
 
-    return (r_s.ok() ? Status::OK : Status::UNKNOWN);
+    return (r_s.ok() ? Status::OK : Status::CANCELLED);
 }
