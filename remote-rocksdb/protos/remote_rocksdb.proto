@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "site.ycsb";
+option java_outer_classname = "RemoteRocksDB";
+option objc_class_prefix = "RRDB";
+
+package remoterocksdb;
+
+service RemoteRocksDBService {
+    /** 执行 CRUD */
+    rpc DoOp(stream Op) returns (stream OpReply) {}
+    // rpc SendReply(stream OpReply) returns (stream Reply) {}
+    // rpc Recover(RecoverRequest) returns (Empty) {}
+}
+
+enum OpType {
+    GET = 0;
+    PUT = 1;
+    DELETE = 2;
+    UPDATE = 3;
+	SCAN = 4;
+}
+
+message Op {
+    repeated string edits = 1;
+    repeated SingleOp ops = 2;
+    int64 time = 3;
+    int32 id = 4;
+}
+
+message OpReply {
+    repeated SingleOpReply replies = 1;
+    int64 time = 2;
+}
+
+message SingleOp {
+    string key = 1;
+    string value = 2;
+    OpType type = 3;
+    uint64 op_ptr = 4;
+    uint64 reply_ptr = 5;
+    int64  keynum = 6;
+	int32 record_cnt = 7;
+}
+
+message SingleOpReply {
+    bool ok = 1;
+    string key = 2;
+    string value = 3;
+    string status = 4;
+    int64  Id = 5;
+    OpType type = 6;
+    int64  keynum = 8;
+	repeated string scanned_values = 9;
+}
+
+message OpReplies {
+    repeated OpReply reply = 1;
+}
+
+message Reply {
+    bool ok = 1;
+}
+
+message Empty {}

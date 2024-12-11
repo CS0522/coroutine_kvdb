@@ -1,5 +1,8 @@
 .vscode
 /remote-rocksdb/*
+!/remote-rocksdb/CMakeLists.txt
+
+/remote-rocksdb/build/
 
 !/remote-rocksdb/lib/
 /remote-rocksdb/lib/librocksdb.a
@@ -11,6 +14,9 @@
 !/remote-rocksdb/include/rocksdb/options.h
 
 !/remote-rocksdb/src/
+
+!/remote-rocksdb/protos/
+!/remote-rocksdb/protos_gen/
 
 rubble_modified/*
 !rubble_modified/helper.sh
