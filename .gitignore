@@ -8,10 +8,6 @@
 /remote-rocksdb/lib/librocksdb.a
 
 !/remote-rocksdb/include/
-/remote-rocksdb/include/rocksdb/*
-!/remote-rocksdb/include/rocksdb/db.h
-!/remote-rocksdb/include/rocksdb/slice.h
-!/remote-rocksdb/include/rocksdb/options.h
 
 !/remote-rocksdb/src/
 
