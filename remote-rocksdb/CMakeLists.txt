@@ -10,6 +10,13 @@ set(CMAKE_CXX_FLAGS_DEBUG " -std=c++17 -g -ggdb -O0 -Wall -Wno-unused-function -
 set(CMAKE_C_FLAGS_RELEASE " -std=c99 -O3 -Wall -Wno-unused-function -fpic -fPIC")
 set(CMAKE_CXX_FLAGS_RELEASE " -std=c++17 -O3 -Wall -Wno-unused-function -fpic -fPIC")
 
+# DEBUG mode
+# cmake -DDEBUG=ON
+if(DEFINED DEBUG)
+    message(STATUS ">>> DEBUG mode <<<")
+    add_definitions(-DDEBUG)
+endif()
+
 # find Protobuf installation
 # looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
 option(protobuf_MODULE_COMPATIBLE TRUE)

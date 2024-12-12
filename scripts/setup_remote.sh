@@ -85,5 +85,5 @@ function setup_remote_fn()
     install_jdk_mvn
     setup_grpc
     setup_remote_rocksdb
-    setup_ycsb
+    # setup_ycsb
 }

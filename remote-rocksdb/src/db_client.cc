@@ -90,6 +90,9 @@ public:
     RemoteRocksDBClient(std::shared_ptr<grpc::Channel> channel)
         : stub_(RemoteRocksDBService::NewStub(channel))
     {
+        #ifdef DEBUG
+        std::cout << "===== DEBUG mode is on =====" std::endl;
+        #endif
     }
 
     ~RemoteRocksDBClient() {}
