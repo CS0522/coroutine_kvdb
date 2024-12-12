@@ -120,6 +120,10 @@ void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
 {
     auto start_time = high_resolution_clock::now();
 
+    #ifdef DEBUG
+    std::cout << std::endl << "Getting..." << std::endl;
+    #endif
+
     for (const auto &key : keys)
     {
         op_counter_.fetch_add(1);
@@ -132,6 +136,13 @@ void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
         {
             batch_counter_.fetch_add(1);
             auto batch_start_time = high_resolution_clock::now();
+
+            #ifdef DEBUG
+            std::cout << "==========" << std::endl;
+            std::cout << "Reach BATCH_SIZE, write stream..." << std::endl;
+            std::cout << "Current SingleOp num in an Op: " << request_.ops_size() << std::endl;
+            std::cout << "==========" << std::endl;
+            #endif
 
             stream_->Write(request_);
 
@@ -206,8 +217,6 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
             request_.clear_ops();
         }
     }
-
-    stream_->WritesDone();
 
     auto end_time = high_resolution_clock::now();
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
