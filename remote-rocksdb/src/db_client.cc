@@ -99,7 +99,7 @@ public:
     void put(const std::vector<std::pair<std::string, std::string>> &kvs);
 
 private:
-    Status Done();
+    // Status Done();
 
     std::unique_ptr<RemoteRocksDBService::Stub> stub_;
     ClientContext context_;
@@ -227,18 +227,18 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
               << millisecs.count() << " millisecs" << std::endl;
 }
 
-Status RemoteRocksDBClient::Done()
-{
-    stream_->WritesDone();
-    Status s = stream_->Finish();
-    if (!s.ok())
-    {
-        std::cout << s.error_code() << ": " << s.error_message()
-                  << std::endl;
-        std::cout << "RPC failed" << std::endl;
-    }
-    return s;
-}
+// Status RemoteRocksDBClient::Done()
+// {
+//     stream_->WritesDone();
+//     Status s = stream_->Finish();
+//     if (!s.ok())
+//     {
+//         std::cout << s.error_code() << ": " << s.error_message()
+//                   << std::endl;
+//         std::cout << "RPC failed" << std::endl;
+//     }
+//     return s;
+// }
 
 // 生成 put、get 测试用例
 void generate_data(std::vector<std::pair<std::string, std::string>> &kvs, std::vector<std::string> &keys)
