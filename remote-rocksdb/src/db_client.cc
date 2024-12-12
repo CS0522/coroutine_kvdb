@@ -94,13 +94,11 @@ public:
 
     ~RemoteRocksDBClient() {}
 
-    // 暴露 CRUD 接口
+    // 暴露 get、put 接口
     void get(const std::vector<std::string> &keys);
     void put(const std::vector<std::pair<std::string, std::string>> &kvs);
 
 private:
-    // Status Done();
-
     std::unique_ptr<RemoteRocksDBService::Stub> stub_;
 
     Op request_;
@@ -119,7 +117,7 @@ void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
     std::unique_ptr<ClientReaderWriter<Op, OpReply>> stream_ = stub_->DoOp(&context_);
 
     #ifdef DEBUG
-    std::cout << std::endl << "Getting..." << std::endl;
+    std::cout << std::endl << "Getting keys..." << std::endl;
     #endif
 
     for (const auto &key : keys)
@@ -157,9 +155,11 @@ void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
             {
                 SingleOpReply single_op_rep = reply_.replies(i);
                 if (!single_op_rep.ok())
-                    std::cout << "Get -> " << request_.ops(i).key() << " failed: " << single_op_rep.status() << std::endl;
+                    std::cout << "Get key: " << request_.ops(i).key() 
+                                << " failed: " << single_op_rep.status() << std::endl;
                 else
-                    std::cout << "Get -> " << request_.ops(i).key() << ", returned val: " << single_op_rep.value() << std::endl;
+                    std::cout << "Get key: " << request_.ops(i).key() 
+                                << std::endl << "Returned value: " << single_op_rep.value() << std::endl;
             }
             request_.clear_ops();
             reply_.clear_replies();
@@ -180,7 +180,7 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
     std::unique_ptr<ClientReaderWriter<Op, OpReply>> stream_ = stub_->DoOp(&context_);
 
     #ifdef DEBUG
-    std::cout << "Putting..." << std::endl;
+    std::cout << "Putting kvs..." << std::endl;
     #endif
 
     for (const auto &kv : kvs)
@@ -233,19 +233,6 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
     std::cout << "send " << kvs.size() << " put ops in "
               << millisecs.count() << " millisecs" << std::endl;
 }
-
-// Status RemoteRocksDBClient::Done()
-// {
-//     stream_->WritesDone();
-//     Status s = stream_->Finish();
-//     if (!s.ok())
-//     {
-//         std::cout << s.error_code() << ": " << s.error_message()
-//                   << std::endl;
-//         std::cout << "RPC failed" << std::endl;
-//     }
-//     return s;
-// }
 
 // 生成 put、get 测试用例
 void generate_data(std::vector<std::pair<std::string, std::string>> &kvs, std::vector<std::string> &keys)

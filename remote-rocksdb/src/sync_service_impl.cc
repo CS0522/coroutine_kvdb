@@ -25,7 +25,6 @@ Status RemoteRocksDBServiceImpl::DoOp(ServerContext *context, ServerReaderWriter
 {
     Op tmp_op;
     Status s;
-    std::vector<OpReply*> op_reps;
 
     // 读取请求流
     while (stream->Read(&tmp_op))
@@ -42,20 +41,17 @@ Status RemoteRocksDBServiceImpl::DoOp(ServerContext *context, ServerReaderWriter
             exit(EXIT_FAILURE);
         }
 
+        // 写回响应流
+        #ifdef DEBUG
+        std::cout << "SingleOpReply num in an OpReply: " 
+                    << (op_reps.size() ? op_reps[0]->replies_size() : 0) << std::endl;
+        std::cout << "OpReply num to return: " << op_reps.size() << std::endl;
+        std::cout << "==========" << std::endl;
+        #endif
         stream->Write(*op_rep);
         
-        op_reps.emplace_back(op_rep);
+        delete op_rep;
     }
-
-    // // 写入响应流
-    // #ifdef DEBUG
-    // std::cout << "SingleOpReply num in an OpReply: " 
-    //             << (op_reps.size() ? op_reps[0]->replies_size() : 0) << std::endl;
-    // std::cout << "OpReply num to return: " << op_reps.size() << std::endl;
-    // std::cout << "==========" << std::endl;
-    // #endif
-    // for (size_t i = 0; i < op_reps.size(); i++)
-    //     stream->Write(*(op_reps[i]));
     
     return s;
 }
@@ -123,8 +119,8 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
 
     #ifdef DEBUG
     std::cout << "SingleOp info: " << std::endl
-                // << "    key: " << single_op->key() << std::endl
-                // << "    value: " << single_op->value() << std::endl
+                << "    key: " << single_op->key() << std::endl
+                << "    value: " << single_op->value() << std::endl
                 << "    type: " << single_op->type() << std::endl;
     std::cout << "==========" << std::endl;
     #endif
@@ -209,8 +205,8 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
     #ifdef DEBUG
     std::cout << "SingleOpReply info: " << std::endl
                 << "    ok: " << single_op_rep->ok() << std::endl
-                // << "    key: " << single_op_rep->key() << std::endl
-                // << "    value: " << single_op_rep->value() << std::endl
+                << "    key: " << single_op_rep->key() << std::endl
+                << "    value: " << single_op_rep->value() << std::endl
                 << "    status: " << single_op_rep->status() << std::endl;
     std::cout << "Current SingleOpReply num in an OpReply: " 
                 << op_rep->replies_size() << std::endl
