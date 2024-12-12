@@ -115,8 +115,8 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
 
     #ifdef DEBUG
     std::cout << "SingleOp info: " << std::endl
-                << "    key: " << single_op->key() << std::endl
-                << "    value: " << single_op->value() << std::endl
+                // << "    key: " << single_op->key() << std::endl
+                // << "    value: " << single_op->value() << std::endl
                 << "    type: " << single_op->type() << std::endl;
     std::cout << "==========" << std::endl;
     #endif
@@ -201,8 +201,8 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
     #ifdef DEBUG
     std::cout << "SingleOpReply info: " << std::endl
                 << "    ok: " << single_op_rep->ok() << std::endl
-                << "    key: " << single_op_rep->key() << std::endl
-                << "    value: " << single_op_rep->value() << std::endl
+                // << "    key: " << single_op_rep->key() << std::endl
+                // << "    value: " << single_op_rep->value() << std::endl
                 << "    status: " << single_op_rep->status() << std::endl;
     std::cout << "Current SingleOpReply num in an OpReply: " 
                 << op_rep->replies_size() << std::endl

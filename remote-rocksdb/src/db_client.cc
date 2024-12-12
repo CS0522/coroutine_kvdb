@@ -179,10 +179,10 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
         single_op->set_value(kv.second);
         single_op->set_type(remoterocksdb::PUT);
 
-        #ifdef DEBUG
-        std::cout << "key: " << single_op->key() << ", value: " << single_op->value() 
-                    << "type: " << single_op->type() << std::endl;
-        #endif
+        // #ifdef DEBUG
+        // std::cout << "key: " << single_op->key() << ", value: " << single_op->value() 
+        //             << ", type: " << single_op->type() << std::endl;
+        // #endif
 
         if (request_.ops_size() == BATCH_SIZE)
         {
@@ -192,7 +192,7 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
             #ifdef DEBUG
             std::cout << "==========" << std::endl;
             std::cout << "Reach BATCH_SIZE, write stream..." << std::endl;
-            std::cout << "Current Op size: " << request_.ops_size() << std::endl;
+            std::cout << "Current SingleOp num in an Op: " << request_.ops_size() << std::endl;
             std::cout << "==========" << std::endl;
             #endif
 
@@ -207,7 +207,7 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
         }
     }
 
-    this->Done();
+    this->WritesDone();
 
     auto end_time = high_resolution_clock::now();
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
