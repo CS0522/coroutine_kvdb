@@ -38,7 +38,7 @@ using std::chrono::high_resolution_clock;
 using std::chrono::time_point;
 
 #define BATCH_SIZE 100
-#define DEBUG
+// #define DEBUG
 
 namespace remoterocksdb
 {
