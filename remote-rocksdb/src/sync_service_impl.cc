@@ -41,19 +41,21 @@ Status RemoteRocksDBServiceImpl::DoOp(ServerContext *context, ServerReaderWriter
             std::cerr << "Handle Op failed" << std::endl;
             exit(EXIT_FAILURE);
         }
+
+        stream->Write(*op_rep);
         
         op_reps.emplace_back(op_rep);
     }
 
-    // 写入响应流
-    #ifdef DEBUG
-    std::cout << "SingleOpReply num in an OpReply: " 
-                << (op_reps.size() ? op_reps[0]->replies_size() : 0) << std::endl;
-    std::cout << "OpReply num to return: " << op_reps.size() << std::endl;
-    std::cout << "==========" << std::endl;
-    #endif
-    for (size_t i = 0; i < op_reps.size(); i++)
-        stream->Write(*(op_reps[i]));
+    // // 写入响应流
+    // #ifdef DEBUG
+    // std::cout << "SingleOpReply num in an OpReply: " 
+    //             << (op_reps.size() ? op_reps[0]->replies_size() : 0) << std::endl;
+    // std::cout << "OpReply num to return: " << op_reps.size() << std::endl;
+    // std::cout << "==========" << std::endl;
+    // #endif
+    // for (size_t i = 0; i < op_reps.size(); i++)
+    //     stream->Write(*(op_reps[i]));
     
     return s;
 }
