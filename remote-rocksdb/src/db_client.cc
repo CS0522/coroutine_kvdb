@@ -90,8 +90,6 @@ public:
     RemoteRocksDBClient(std::shared_ptr<grpc::Channel> channel)
         : stub_(RemoteRocksDBService::NewStub(channel))
     {
-        // 一初始化就已经在执行 DoOp
-        stream_ = stub_->DoOp(&context_);
     }
 
     ~RemoteRocksDBClient() {}
@@ -105,7 +103,6 @@ private:
 
     std::unique_ptr<RemoteRocksDBService::Stub> stub_;
     ClientContext context_;
-    std::unique_ptr<ClientReaderWriter<Op, OpReply>> stream_;
 
     Op request_;
     OpReply reply_;
@@ -119,6 +116,7 @@ private:
 void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
 {
     auto start_time = high_resolution_clock::now();
+    std::unique_ptr<ClientReaderWriter<Op, OpReply>> stream_ = stub_->DoOp(&context_);
 
     #ifdef DEBUG
     std::cout << std::endl << "Getting..." << std::endl;
@@ -168,6 +166,8 @@ void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
         }
     }
 
+    stream_->WritesDone();
+
     auto end_time = high_resolution_clock::now();
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
     std::cout << "send " << keys.size() << " get ops in " << millisecs.count() << " millisecs" << std::endl;
@@ -176,6 +176,7 @@ void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
 void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::string>> &kvs)
 {
     auto start_time = high_resolution_clock::now();
+    std::unique_ptr<ClientReaderWriter<Op, OpReply>> stream_ = stub_->DoOp(&context_);
 
     #ifdef DEBUG
     std::cout << "Putting..." << std::endl;
@@ -217,6 +218,8 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
             request_.clear_ops();
         }
     }
+
+    stream_->WriteDone();
 
     auto end_time = high_resolution_clock::now();
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);

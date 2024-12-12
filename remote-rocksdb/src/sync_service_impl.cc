@@ -52,6 +52,7 @@ Status RemoteRocksDBServiceImpl::DoOp(ServerContext *context, ServerReaderWriter
     for (size_t i = 0; i < op_reps.size(); i++)
         stream->Write(*(op_reps[i]));
 
+    stream->WritesDone();
     return s;
 }
 
