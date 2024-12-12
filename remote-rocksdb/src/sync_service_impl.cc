@@ -37,7 +37,10 @@ Status RemoteRocksDBServiceImpl::DoOp(ServerContext *context, ServerReaderWriter
         s = this->HandleOp(op_req, op_rep);
         // 有操作未正确执行，退出
         if (!s.ok())
-            break;
+        {
+            std::cerr << "Handle Op failed" << std::endl;
+            exit(EXIT_FAILURE);
+        }
         
         op_reps.emplace_back(op_rep);
     }
@@ -51,8 +54,7 @@ Status RemoteRocksDBServiceImpl::DoOp(ServerContext *context, ServerReaderWriter
     #endif
     for (size_t i = 0; i < op_reps.size(); i++)
         stream->Write(*(op_reps[i]));
-
-    stream->WritesDone();
+    
     return s;
 }
 
@@ -89,7 +91,10 @@ Status RemoteRocksDBServiceImpl::HandleOp(Op *op, OpReply *op_reply)
 
         s = this->HandleSingleOp(single_op);
         if (!s.ok())
-            break;
+        {
+            std::cerr << "Handle SingleOp failed" << std::endl;
+            exit(EXIT_FAILURE);
+        }
     }
 
     return s;

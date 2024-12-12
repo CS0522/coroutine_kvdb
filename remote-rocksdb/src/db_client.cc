@@ -149,7 +149,7 @@ void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
 
             auto batch_end_time = high_resolution_clock::now();
             auto batch_process_time = duration_cast<std::chrono::milliseconds>(batch_end_time - batch_start_time).count();
-            std::cout << "Process bacth " << batch_counter_.load()
+            std::cout << "Process batch " << batch_counter_.load()
                       << " in " << std::to_string(batch_process_time) << " millisecs" << std::endl;
 
             assert(reply_.replies_size() == BATCH_SIZE);
@@ -219,7 +219,7 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
         }
     }
 
-    stream_->WriteDone();
+    stream_->WritesDone();
 
     auto end_time = high_resolution_clock::now();
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
