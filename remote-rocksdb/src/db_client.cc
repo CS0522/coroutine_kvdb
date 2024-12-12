@@ -102,7 +102,6 @@ private:
     // Status Done();
 
     std::unique_ptr<RemoteRocksDBService::Stub> stub_;
-    ClientContext context_;
 
     Op request_;
     OpReply reply_;
@@ -116,6 +115,7 @@ private:
 void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
 {
     auto start_time = high_resolution_clock::now();
+    ClientContext context_;
     std::unique_ptr<ClientReaderWriter<Op, OpReply>> stream_ = stub_->DoOp(&context_);
 
     #ifdef DEBUG
@@ -176,6 +176,7 @@ void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
 void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::string>> &kvs)
 {
     auto start_time = high_resolution_clock::now();
+    ClientContext context_;
     std::unique_ptr<ClientReaderWriter<Op, OpReply>> stream_ = stub_->DoOp(&context_);
 
     #ifdef DEBUG
