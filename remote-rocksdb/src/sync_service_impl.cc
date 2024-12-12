@@ -45,7 +45,7 @@ Status RemoteRocksDBServiceImpl::DoOp(ServerContext *context, ServerReaderWriter
     // 写入响应流
     #ifdef DEBUG
     std::cout << "SingleOpReply num in an OpReply: " 
-                << op_reps.size() ? op_reps[0]->size() : 0 << std::endl;
+                << (op_reps.size() ? op_reps[0]->replies_size() : 0) << std::endl;
     std::cout << "OpReply num to return: " << op_reps.size() << std::endl;
     std::cout << "==========" << std::endl;
     #endif

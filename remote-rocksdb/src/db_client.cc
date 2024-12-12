@@ -166,28 +166,35 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
 {
     auto start_time = high_resolution_clock::now();
 
+    #ifdef DEBUG
+    std::cout << "Putting..." << std::endl;
+    #endif
+
     for (const auto &kv : kvs)
     {
         op_counter_.fetch_add(1);
 
-        SingleOp *op = request_.add_ops();
-        op->set_key(kv.first);
-        op->set_value(kv.second);
-        op->set_type(remoterocksdb::PUT);
+        SingleOp *single_op = request_.add_ops();
+        single_op->set_key(kv.first);
+        single_op->set_value(kv.second);
+        single_op->set_type(remoterocksdb::PUT);
 
-        // myprint
-        std::cout << "op.key: " << op.key() << "op.value: " << op.value() 
-                    << "op.type: " << op.type() << std::endl;
+        #ifdef DEBUG
+        std::cout << "key: " << single_op->key() << ", value: " << single_op->value() 
+                    << "type: " << single_op->type() << std::endl;
+        #endif
 
         if (request_.ops_size() == BATCH_SIZE)
         {
             batch_counter_.fetch_add(1);
             auto batch_start_time = high_resolution_clock::now();
 
-            // myprint
-            for (int i = 0; i < request_.ops_size(); i++)
-                std::cout << "k: " << request_.mutable_ops(i).key() << " v: "
-                            << request_.mubtable_ops(i).value() << std::endl;
+            #ifdef DEBUG
+            std::cout << "==========" << std::endl;
+            std::cout << "Reach BATCH_SIZE, write stream..." << std::endl;
+            std::cout << "Current Op size: " << request_.ops_size() << std::endl;
+            std::cout << "==========" << std::endl;
+            #endif
 
             stream_->Write(request_);
 
@@ -239,7 +246,7 @@ void generate_data(std::vector<std::pair<std::string, std::string>> &kvs, std::v
     {
         std::string rand_key = std::bitset<24>(zipf(gen)).to_string();
         std::string rand_val = std::bitset<32>(distr(eng)).to_string();
-        // 凑成 KV_SIZE
+        // field length 长度置为 KV_SIZE
         rand_val.append(KV_SIZE - rand_val.size(), '0');
 
         kvs.emplace_back(rand_key, rand_val);
