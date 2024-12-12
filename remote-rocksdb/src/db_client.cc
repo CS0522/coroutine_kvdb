@@ -207,7 +207,7 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
         }
     }
 
-    this->WritesDone();
+    stream_->WritesDone();
 
     auto end_time = high_resolution_clock::now();
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
