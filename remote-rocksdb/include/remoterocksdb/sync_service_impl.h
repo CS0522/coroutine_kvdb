@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstdio>
 #include <string>
+#include <vector>
+#include <algorithm>
 
 #include "rocksdb/db.h"
 #include "rocksdb/slice.h"
@@ -34,6 +36,9 @@ using remoterocksdb::SingleOpReply;
 
 using std::chrono::high_resolution_clock;
 using std::chrono::time_point;
+
+#define BATCH_SIZE 100
+#define DEBUG
 
 namespace remoterocksdb
 {

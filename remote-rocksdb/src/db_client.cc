@@ -134,8 +134,6 @@ void RemoteRocksDBClient::get(const std::vector<std::string> &keys)
             auto batch_start_time = high_resolution_clock::now();
 
             stream_->Write(request_);
-            // 需要 WritesDone 和 Finish？
-            this->Done();
 
             // Get the value for the sent key
             stream_->Read(&reply_);
@@ -177,14 +175,21 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
         op->set_value(kv.second);
         op->set_type(remoterocksdb::PUT);
 
+        // myprint
+        std::cout << "op.key: " << op.key() << "op.value: " << op.value() 
+                    << "op.type: " << op.type() << std::endl;
+
         if (request_.ops_size() == BATCH_SIZE)
         {
             batch_counter_.fetch_add(1);
             auto batch_start_time = high_resolution_clock::now();
 
-            stream_->Write(request_);
+            // myprint
+            for (int i = 0; i < request_.ops_size(); i++)
+                std::cout << "k: " << request_.mutable_ops(i).key() << " v: "
+                            << request_.mubtable_ops(i).value() << std::endl;
 
-            this->Done();
+            stream_->Write(request_);
 
             auto batch_end_time = high_resolution_clock::now();
             auto batch_process_time = duration_cast<std::chrono::milliseconds>(batch_end_time - batch_start_time).count();
@@ -194,6 +199,8 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
             request_.clear_ops();
         }
     }
+
+    this->Done();
 
     auto end_time = high_resolution_clock::now();
     auto millisecs = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);

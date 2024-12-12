@@ -2,25 +2,32 @@
 
 using namespace remoterocksdb;
 
-#define BATCH_SIZE 1000
-
 RemoteRocksDBServiceImpl::RemoteRocksDBServiceImpl(rocksdb::DB *db)
     : db_(db)
 {
-    std::cout << "Construct RemoteRocksDBService..." << std::endl;
+    std::cout << "Start RemoteRocksDBService..." << std::endl;
 }
 
 RemoteRocksDBServiceImpl::~RemoteRocksDBServiceImpl()
 {
-    std::cout << "Deconstruct RemoteRocksDBService..." << std::endl;
+    std::cout << "Shutdown RemoteRocksDBService..." << std::endl;
     delete db_;
 }
+
+/**
+ * 一个 Op 包含 n 个 SingleOp，相当于一个 Op Batch；
+ * 一个 OpReply 包含 n 个 SingleOpReply；
+ * 一个 Op 对应一个 OpReply，一个 SingleOp 对应一个 SingleOpReply；
+ * 一个 SingleOp 有指向所属 Op 和所属 Op 对应的 OpReply 的指针，以方便更新 OpReply
+ */
 
 Status RemoteRocksDBServiceImpl::DoOp(ServerContext *context, ServerReaderWriter<OpReply, Op> *stream)
 {
     Op tmp_op;
     Status s;
+    std::vector<OpReply*> op_reps;
 
+    // 读取请求流
     while (stream->Read(&tmp_op))
     {
         Op *op_req = new Op(tmp_op);
@@ -31,7 +38,19 @@ Status RemoteRocksDBServiceImpl::DoOp(ServerContext *context, ServerReaderWriter
         // 有操作未正确执行，退出
         if (!s.ok())
             break;
+        
+        op_reps.emplace_back(op_rep);
     }
+
+    // 写入响应流
+    #ifdef DEBUG
+    std::cout << "SingleOpReply num in an OpReply: " 
+                << op_reps.size() ? op_reps[0]->size() : 0 << std::endl;
+    std::cout << "OpReply num to return: " << op_reps.size() << std::endl;
+    std::cout << "==========" << std::endl;
+    #endif
+    for (size_t i = 0; i < op_reps.size(); i++)
+        stream->Write(*(op_reps[i]));
 
     return s;
 }
@@ -46,6 +65,12 @@ Status RemoteRocksDBServiceImpl::HandleOp(Op *op, OpReply *op_reply)
 
     batch_counter_.fetch_add(1);
     size_t ops_size = op->ops_size();
+    
+    #ifdef DEBUG
+    std::cout << "SingleOp num in an Op: " << ops_size << std::endl;
+    std::cout << "==========" << std::endl;
+    #endif
+
     for (size_t i = 0; i < ops_size; i++)
     {
         SingleOp *single_op = op->mutable_ops(i);
@@ -57,7 +82,7 @@ Status RemoteRocksDBServiceImpl::HandleOp(Op *op, OpReply *op_reply)
         }
         else
             single_op->set_op_ptr((uint64_t) nullptr);
-        // update the OpReply after every SingleOp
+        // 设置 OpReply 指针，以方便 SingleOp 处理后更新 OpReply
         single_op->set_reply_ptr((uint64_t)op_reply);
         assert((uint64_t)op_reply == single_op->reply_ptr());
 
@@ -76,15 +101,25 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
     int record_cnt = 0;
     rocksdb::Iterator *iter;
 
+    // SingleOp 对应的 Reply
     SingleOpReply *single_op_rep;
+    // Op Batch 对应的 Reply，其中包含 n 个 SingleOpReply
     OpReply *op_rep = (OpReply *)single_op->reply_ptr();
 
     rocksdb::WriteOptions wop = rocksdb::WriteOptions();
-    // sync write option
+    // 开启同步写
     wop.sync = true;
     rocksdb::ReadOptions rop = rocksdb::ReadOptions();
 
     std::string value;
+
+    #ifdef DEBUG
+    std::cout << "SingleOp info: " << std::endl
+                << "    key: " << single_op->key() << std::endl
+                << "    value: " << single_op->value() << std::endl
+                << "    type: " << single_op->type() << std::endl;
+    std::cout << "==========" << std::endl;
+    #endif
 
     switch (single_op->type())
     {
@@ -162,6 +197,17 @@ Status RemoteRocksDBServiceImpl::HandleSingleOp(SingleOp *single_op)
         std::cerr << "Unsupported Operation" << std::endl;
         break;
     }
+
+    #ifdef DEBUG
+    std::cout << "SingleOpReply info: " << std::endl
+                << "    ok: " << single_op_rep->ok() << std::endl
+                << "    key: " << single_op_rep->key() << std::endl
+                << "    value: " << single_op_rep->value() << std::endl
+                << "    status: " << single_op_rep->status() << std::endl;
+    std::cout << "Current SingleOpReply num in an OpReply: " 
+                << op_rep->replies_size() << std::endl
+                << "=====================" << std::endl;
+    #endif
 
     return (r_s.ok() ? Status::OK : Status::CANCELLED);
 }
