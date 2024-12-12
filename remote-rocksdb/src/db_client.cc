@@ -210,12 +210,18 @@ void RemoteRocksDBClient::put(const std::vector<std::pair<std::string, std::stri
 
             stream_->Write(request_);
 
+            // get put reply
+            stream_->Read(&reply_);
+
             auto batch_end_time = high_resolution_clock::now();
             auto batch_process_time = duration_cast<std::chrono::milliseconds>(batch_end_time - batch_start_time).count();
             std::cout << "process batch " << batch_counter_.load()
                       << " in " << std::to_string(batch_process_time) << " millisecs" << std::endl;
 
+            assert(reply_.replies_size() == BATCH_SIZE);
+
             request_.clear_ops();
+            reply_.clear_replies();
         }
     }
 
